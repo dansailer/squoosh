@@ -6,7 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": ">=25.9.0"
+    "node": ">=24.16.0"
   },
   "scripts": {
     "build": "rollup -c rollup.config.mjs && node lib/move-output.mjs",

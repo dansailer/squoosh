@@ -7,7 +7,7 @@ import {
   preventDefault,
 } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
-import linkState from 'linkstate';
+import linkState from 'shared/link-state';
 import Range from 'client/lazy-app/Compress/Options/Range';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
 import Expander from 'client/lazy-app/Compress/Options/Expander';

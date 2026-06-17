@@ -1,6 +1,6 @@
 import { wrap } from 'comlink';
 import { BridgeMethods, methodNames } from './meta';
-import workerURL from 'omt:../../../features-worker';
+import workerURL from 'worker:../../../features-worker';
 import type { ProcessorWorkerApi } from '../../../features-worker';
 import { abortable } from '../util';
 

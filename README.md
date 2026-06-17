@@ -4,14 +4,9 @@
 
 # Privacy
 
-Squoosh does not send your image to a server. All image compression processes locally.
+Squoosh does not send your images to a server. All image compression happens locally in your browser.
 
-However, Squoosh utilizes Google Analytics to collect the following:
-
-- [Basic visitor data](https://support.google.com/analytics/answer/6004245?ref_topic=2919631).
-- The before and after image size value.
-- If Squoosh PWA, the type of Squoosh installation.
-- If Squoosh PWA, the installation time and date.
+Squoosh does not use analytics, trackers, or third-party scripts. Fonts and other assets are self-hosted — nothing is loaded from external CDNs at runtime.
 
 # Developing
 
@@ -20,15 +15,15 @@ To develop for Squoosh:
 1. Clone the repository
 1. To install node packages, run:
    ```sh
-   npm install
+   pnpm install
    ```
 1. Then build the app by running:
    ```sh
-   npm run build
+   pnpm run build
    ```
 1. After building, start the development server by running:
    ```sh
-   npm run dev
+   pnpm run dev
    ```
 
 # Contributing

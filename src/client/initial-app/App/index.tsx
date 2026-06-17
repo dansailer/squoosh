@@ -1,4 +1,4 @@
-import type { FileDropEvent } from 'file-drop-element';
+import type { FileDropEvent } from 'client/initial-app/custom-els/file-drop';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import type { SnackOptions } from 'shared/custom-els/snack-bar';
 
@@ -7,10 +7,11 @@ import { h, Component } from 'preact';
 import { linkRef } from 'shared/prerendered-app/util';
 import * as style from './style.css';
 import 'add-css:./style.css';
-import 'file-drop-element';
+import 'client/initial-app/custom-els/file-drop';
 import 'shared/custom-els/snack-bar';
 import Intro from 'shared/prerendered-app/Intro';
 import 'shared/custom-els/loading-spinner';
+import { stripBasePath, withBasePath } from 'shared/base-path';
 
 const ROUTE_EDITOR = '/editor';
 
@@ -58,7 +59,7 @@ export default class App extends Component<Props, State> {
       if (!this.state.awaitingShareTarget) return;
       const file = await getSharedImage();
       // Remove the ?share-target from the URL
-      history.replaceState('', '', '/');
+      history.replaceState('', '', withBasePath('/'));
       this.openEditor();
       this.setState({ file, awaitingShareTarget: false });
     });
@@ -95,14 +96,16 @@ export default class App extends Component<Props, State> {
   };
 
   private onPopState = () => {
-    this.setState({ isEditorOpen: location.pathname === ROUTE_EDITOR });
+    this.setState({
+      isEditorOpen: stripBasePath(location.pathname) === ROUTE_EDITOR,
+    });
   };
 
   private openEditor = () => {
     if (this.state.isEditorOpen) return;
     // Change path, but preserve query string.
     const editorURL = new URL(location.href);
-    editorURL.pathname = ROUTE_EDITOR;
+    editorURL.pathname = withBasePath(ROUTE_EDITOR);
     history.pushState(null, '', editorURL.href);
     this.setState({ isEditorOpen: true });
   };

@@ -1,4 +1,4 @@
-import PointerTracker, { Pointer } from 'pointer-tracker';
+import PointerTracker, { Pointer } from 'shared/pointer-tracker';
 import 'add-css:./styles.css';
 import { isSafari } from 'client/lazy-app/util';
 

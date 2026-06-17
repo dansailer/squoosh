@@ -14,7 +14,7 @@ import { getContainOffsets } from '../shared/util';
 import type { SourceImage } from 'client/lazy-app/Compress';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
 import { h, Component } from 'preact';
-import linkState from 'linkstate';
+import linkState from 'shared/link-state';
 import {
   inputFieldValueAsNumber,
   inputFieldValue,

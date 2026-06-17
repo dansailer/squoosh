@@ -1,6 +1,6 @@
 // THIS IS NOT A NODE SCRIPT
 // This is a d8 script. Please install jsvu[1] and install v8.
-// Then run `npm run --silent benchmark`.
+// Then run `pnpm run --silent benchmark`.
 // [1]: https://github.com/GoogleChromeLabs/jsvu
 async function init() {
   //  Adjustable constants.

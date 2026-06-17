@@ -8,6 +8,7 @@ import {
 } from './util';
 import { get } from 'idb-keyval';
 import { shouldCacheDynamically } from './to-cache';
+import { isAppRoot, stripBasePath, withBasePath } from 'shared/base-path';
 
 // Give TypeScript the correct global.
 declare var self: ServiceWorkerGlobalScope;
@@ -54,13 +55,13 @@ self.addEventListener('fetch', (event) => {
   // Don't care about other-origin URLs
   if (url.origin !== location.origin) return;
 
-  if (url.pathname === '/editor') {
-    event.respondWith(Response.redirect('/'));
+  if (stripBasePath(url.pathname) === '/editor') {
+    event.respondWith(Response.redirect(withBasePath('/')));
     return;
   }
 
   if (
-    url.pathname === '/' &&
+    isAppRoot(url.pathname) &&
     url.searchParams.has('share-target') &&
     event.request.method === 'POST'
   ) {

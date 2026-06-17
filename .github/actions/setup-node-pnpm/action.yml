@@ -1,0 +1,15 @@
+name: Setup Node and pnpm
+description: Install Node from .nvmrc and pnpm with dependency cache
+
+runs:
+  using: composite
+  steps:
+    - id: nvmrc
+      uses: browniebroke/read-nvmrc-action@v1
+
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ steps.nvmrc.outputs.node_version }}
+        cache: pnpm

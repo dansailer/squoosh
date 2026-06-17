@@ -5,11 +5,12 @@ runs:
   using: composite
   steps:
     - id: nvmrc
-      uses: browniebroke/read-nvmrc-action@v1
+      shell: bash
+      run: printf 'node_version=%s\n' "$(tr -d '\n' < .nvmrc)" >> "$GITHUB_OUTPUT"
 
     - uses: pnpm/action-setup@v4
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
         node-version: ${{ steps.nvmrc.outputs.node_version }}
         cache: pnpm

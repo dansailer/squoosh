@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { globSync } from '../lib/glob-files.js';
+import { toAbsoluteUrl } from '../lib/base-path.js';
 
 const buildDir = 'build';
 const buildExists = existsSync(buildDir);
@@ -61,8 +62,13 @@ test('manifest.json references self-hosted icons', { skip: !buildExists }, () =>
   assert.ok(Array.isArray(manifest.icons));
   assert.ok(manifest.icons.length > 0);
 
+  const iconPathPrefix = toAbsoluteUrl('/c/');
+
   for (const icon of manifest.icons) {
-    assert.match(icon.src, /^\/c\//);
+    assert.ok(
+      icon.src.startsWith(iconPathPrefix),
+      `expected icon src to start with ${iconPathPrefix}, got ${icon.src}`,
+    );
     assert.match(icon.type, /^image\//);
   }
 });

@@ -1,4 +1,5 @@
 import { initial, theRest } from './to-cache';
+import { stripBasePath, withBasePath } from 'shared/base-path';
 
 // Give TypeScript the correct global.
 declare var self: ServiceWorkerGlobalScope;
@@ -47,7 +48,7 @@ export function serveShareTarget(event: FetchEvent): void {
   const dataPromise = event.request.formData();
 
   // Redirect so the user can refresh the page without resending data.
-  event.respondWith(Response.redirect('/?share-target'));
+  event.respondWith(Response.redirect(withBasePath('/?share-target')));
 
   event.waitUntil(
     (async function () {
@@ -74,7 +75,9 @@ export function cleanupCache(
       const requests = await cache.keys();
       const promises = requests.map((cachedRequest) => {
         // Get pathname without leading /
-        const assetPath = new URL(cachedRequest.url).pathname.slice(1);
+        const assetPath = stripBasePath(
+          new URL(cachedRequest.url).pathname,
+        ).slice(1);
         // If it isn't one of our keepAssets, we don't need it anymore.
         if (!keepAssets.includes(assetPath)) return cache.delete(cachedRequest);
       });

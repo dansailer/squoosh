@@ -2,6 +2,7 @@ import { simd } from 'wasm-feature-detect';
 import webpDataUrl from 'data-url:./tiny.webp';
 import avifDataUrl from 'data-url:./tiny.avif';
 import checkThreadsSupport from 'worker-shared/supports-wasm-threads';
+import { stripBasePath, withBasePath } from 'shared/base-path';
 
 // Give TypeScript the correct global.
 declare var self: ServiceWorkerGlobalScope;
@@ -49,8 +50,8 @@ import * as wp2EncMtSimd from 'entry-data:codecs/wp2/enc/wp2_enc_mt_simd';
 import * as wp2EncMt from 'entry-data:codecs/wp2/enc/wp2_enc_mt';
 import * as wp2Enc from 'entry-data:codecs/wp2/enc/wp2_enc';
 
-export function shouldCacheDynamically(url: string) {
-  return url.startsWith('/c/demo-');
+export function shouldCacheDynamically(pathname: string) {
+  return stripBasePath(pathname).startsWith('/c/demo-');
 }
 
 let initialJs = new Set([
@@ -80,7 +81,7 @@ initialJs = subtractSets(
   ]),
 );
 
-export const initial = ['/', ...initialJs];
+export const initial = [withBasePath('/'), ...initialJs];
 
 export const theRest = (async () => {
   const [supportsThreads, supportsSimd, supportsWebP, supportsAvif] =

@@ -29,7 +29,7 @@ declare module 'img-url:*' {
   export const height: number;
 }
 
-declare module 'omt:*' {
+declare module 'worker:*' {
   const value: string;
   export default value;
 }
@@ -38,6 +38,8 @@ declare module 'css:*' {
   const source: string;
   export default source;
 }
+
+declare module 'add-css:*' {}
 
 declare module 'data-url:*' {
   const url: string;
@@ -54,9 +56,5 @@ declare module 'service-worker:*' {
   export default url;
 }
 
-declare var ga: {
-  (...args: any[]): void;
-  q: any[];
-};
-
 declare const __PRODUCTION__: boolean;
+declare const __BASE_PATH__: string;

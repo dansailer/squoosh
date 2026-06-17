@@ -22,8 +22,14 @@ import * as screenshot3 from 'img-url:static-build/assets/screenshot3.jpg';
 import * as screenshot4 from 'img-url:static-build/assets/screenshot4.png';
 import * as screenshot5 from 'img-url:static-build/assets/screenshot5.jpg';
 import * as screenshot6 from 'img-url:static-build/assets/screenshot6.jpg';
-import dedent from 'dedent';
-import { lookup as lookupMime } from 'mime-types';
+import dedent from './dedent';
+import { toAbsoluteUrl } from 'static-build/base-path';
+
+function lookupMime(path: string): string {
+  if (path.endsWith('.png')) return 'image/png';
+  if (path.endsWith('.jpg') || path.endsWith('.jpeg')) return 'image/jpeg';
+  return 'application/octet-stream';
+}
 
 interface Dimensions {
   width: number;
@@ -57,7 +63,7 @@ const toOutput: Output = {
   'manifest.json': JSON.stringify({
     name: 'Squoosh',
     short_name: 'Squoosh',
-    start_url: '/?utm_medium=PWA&utm_source=launcher',
+    start_url: toAbsoluteUrl('/'),
     display: 'standalone',
     orientation: 'any',
     background_color: '#fff',
@@ -81,7 +87,7 @@ const toOutput: Output = {
     categories: ['photo', 'productivity', 'utilities'],
     screenshots,
     share_target: {
-      action: '/?utm_medium=PWA&utm_source=share-target&share-target',
+      action: toAbsoluteUrl('/?share-target'),
       method: 'POST',
       enctype: 'multipart/form-data',
       params: {

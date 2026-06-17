@@ -8,7 +8,7 @@ import Range from 'client/lazy-app/Compress/Options/Range';
 import Select from 'client/lazy-app/Compress/Options/Select';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
 import Expander from 'client/lazy-app/Compress/Options/Expander';
-import linkState from 'linkstate';
+import linkState from 'shared/link-state';
 import Revealer from 'client/lazy-app/Compress/Options/Revealer';
 
 export const encode = (

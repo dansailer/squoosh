@@ -11,29 +11,34 @@
  * limitations under the License.
  */
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { promises as fsp } from 'fs';
-import del from 'del';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
-import OMT from '@surma/rollup-plugin-off-main-thread';
 import replace from '@rollup/plugin-replace';
-import { importMetaAssets } from '@web/rollup-plugin-import-meta-assets';
+import workerPlugin from './lib/worker-plugin.js';
+import importMetaAssets from './lib/import-meta-assets-plugin.js';
 
-import simpleTS from './lib/simple-ts';
-import clientBundlePlugin from './lib/client-bundle-plugin';
-import nodeExternalPlugin from './lib/node-external-plugin';
-import cssPlugin from './lib/css-plugin';
-import urlPlugin from './lib/url-plugin';
-import resolveDirsPlugin from './lib/resolve-dirs-plugin';
-import runScript from './lib/run-script';
-import emitFiles from './lib/emit-files-plugin';
-import featurePlugin from './lib/feature-plugin';
-import initialCssPlugin from './lib/initial-css-plugin';
-import serviceWorkerPlugin from './lib/sw-plugin';
-import dataURLPlugin from './lib/data-url-plugin';
-import entryDataPlugin, { fileNameToURL } from './lib/entry-data-plugin';
-import dedent from 'dedent';
+import simpleTS from './lib/simple-ts.js';
+import clientBundlePlugin from './lib/client-bundle-plugin.js';
+import nodeExternalPlugin from './lib/node-external-plugin.js';
+import cssPlugin from './lib/css-plugin.js';
+import urlPlugin from './lib/url-plugin.js';
+import resolveDirsPlugin from './lib/resolve-dirs-plugin.js';
+import runScript from './lib/run-script.js';
+import emitFiles from './lib/emit-files-plugin.js';
+import featurePlugin from './lib/feature-plugin.js';
+import initialCssPlugin from './lib/initial-css-plugin.js';
+import serviceWorkerPlugin from './lib/sw-plugin.js';
+import dataURLPlugin from './lib/data-url-plugin.js';
+import entryDataPlugin, { fileNameToURL } from './lib/entry-data-plugin.js';
+import { getBasePath } from './lib/base-path.js';
+import dedent from './lib/dedent.js';
+
+const basePath = getBasePath();
 
 function resolveFileUrl({ fileName }) {
   return JSON.stringify(fileNameToURL(fileName));
@@ -64,12 +69,7 @@ function jsFileName(chunkInfo) {
 }
 
 export default async function ({ watch }) {
-  const omtLoaderPromise = fsp.readFile(
-    path.join(__dirname, 'lib', 'omt.ejs'),
-    'utf-8',
-  );
-
-  await del('.tmp/build');
+  await fsp.rm('.tmp/build', { recursive: true, force: true });
 
   const isProduction = !watch;
 
@@ -98,9 +98,9 @@ export default async function ({ watch }) {
     input: 'src/static-build/index.tsx',
     output: {
       dir,
-      format: 'cjs',
+      format: 'es',
       assetFileNames: staticPath,
-      exports: 'named',
+      preserveModules: true,
     },
     watch: {
       clearScreen: false,
@@ -111,7 +111,6 @@ export default async function ({ watch }) {
       // although we may need to change this number over time.
       buildDelay: 250,
     },
-    preserveModules: true,
     plugins: [
       { resolveFileUrl, resolveImportMeta: resolveImportMetaUrlInStaticBuild },
       clientBundlePlugin(
@@ -119,7 +118,7 @@ export default async function ({ watch }) {
           external: ['worker_threads'],
           plugins: [
             { resolveFileUrl },
-            OMT({ loader: await omtLoaderPromise }),
+            workerPlugin(),
             importMetaAssets(),
             serviceWorkerPlugin({
               output: 'static/serviceworker.js',
@@ -127,20 +126,26 @@ export default async function ({ watch }) {
             ...commonPlugins(),
             commonjs(),
             resolve(),
-            replace({ __PRERENDER__: false, __PRODUCTION__: isProduction }),
+            replace({
+              __PRERENDER__: false,
+              __PRODUCTION__: isProduction,
+              __BASE_PATH__: JSON.stringify(basePath),
+              preventAssignment: true,
+            }),
             entryDataPlugin(),
-            isProduction ? terser({ module: true }) : {},
+            ...(isProduction ? [terser({ module: true })] : []),
           ],
-          preserveEntrySignatures: false,
         },
         {
           dir,
           format: 'amd',
           chunkFileNames: jsFileName,
           entryFileNames: jsFileName,
-          // This is needed because emscripten's workers use 'this', so they trigger all kinds of interop things,
+          preserveModules: true,
+          exports: 'named',
+          // Emscripten's workers use 'this', so they trigger all kinds of interop things,
           // such as double-wrapping objects in { default }.
-          interop: false,
+          interop: 'compat',
         },
         resolveFileUrl,
       ),
@@ -148,7 +153,12 @@ export default async function ({ watch }) {
       emitFiles({ include: '**/*', root: path.join(__dirname, 'src', 'copy') }),
       nodeExternalPlugin(),
       featurePlugin(),
-      replace({ __PRERENDER__: true, __PRODUCTION__: isProduction }),
+      replace({
+        __PRERENDER__: true,
+        __PRODUCTION__: isProduction,
+        __BASE_PATH__: JSON.stringify(basePath),
+        preventAssignment: true,
+      }),
       initialCssPlugin(),
       runScript(dir + '/static-build/index.js'),
     ],

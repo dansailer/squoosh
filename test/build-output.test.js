@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, globSync as nodeGlobSync } from 'node:fs';
 import { join } from 'node:path';
 import { globSync } from '../lib/glob-files.js';
 import { toAbsoluteUrl } from '../lib/base-path.js';
@@ -38,6 +38,18 @@ test('build output contains expected entry files', { skip: !buildExists }, () =>
   assert.ok(existsSync(join(buildDir, 'manifest.json')));
   assert.ok(existsSync(join(buildDir, 'sw.js')));
   assert.ok(existsSync(join(buildDir, '_headers')));
+  assert.ok(existsSync(join(buildDir, '.nojekyll')));
+});
+
+test('lazy-loaded vendor chunks exist under node_modules paths', { skip: !buildExists }, () => {
+  const comlinkChunks = nodeGlobSync(
+    'c/node_modules/.pnpm/**/comlink/dist/esm/comlink-*.js',
+    { cwd: buildDir, dot: true },
+  );
+  assert.ok(
+    comlinkChunks.length > 0,
+    'comlink chunk must be present for the /editor lazy bundle',
+  );
 });
 
 test('build output has no analytics or third-party trackers', { skip: !buildExists }, () => {

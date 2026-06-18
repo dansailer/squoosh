@@ -41,14 +41,16 @@ test('build output contains expected entry files', { skip: !buildExists }, () =>
   assert.ok(existsSync(join(buildDir, '.nojekyll')));
 });
 
-test('lazy-loaded vendor chunks exist under node_modules paths', { skip: !buildExists }, () => {
-  const comlinkChunks = nodeGlobSync(
-    'c/node_modules/.pnpm/**/comlink/dist/esm/comlink-*.js',
-    { cwd: buildDir, dot: true },
-  );
+test('lazy-loaded vendor chunks are flattened into c/', { skip: !buildExists }, () => {
+  const comlinkChunks = nodeGlobSync('c/comlink-*.js', { cwd: buildDir });
   assert.ok(
     comlinkChunks.length > 0,
     'comlink chunk must be present for the /editor lazy bundle',
+  );
+  assert.equal(
+    existsSync(join(buildDir, 'c/node_modules')),
+    false,
+    'vendor chunks must not remain under c/node_modules',
   );
 });
 
